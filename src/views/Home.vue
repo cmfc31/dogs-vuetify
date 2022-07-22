@@ -2,7 +2,7 @@
   <div>
     <v-container>
       <v-row>
-        <v-col cols="12" sm="4" v-for="dog in dogs" :key="dog.id">
+        <v-col cols="12" sm="6" md="4" v-for="dog in dogs" :key="dog.id">
           <v-card class="fill-height">
             <div class="d-flex flex-column">
               <v-img
@@ -37,7 +37,7 @@
               <v-card-actions>
                 <v-spacer></v-spacer>
 
-                <v-btn icon>
+                <v-btn icon @click="saveFavorite(dog.id)">
                   <v-icon color="red darken-2">fas fa-heart</v-icon>
                 </v-btn>
               </v-card-actions>
@@ -57,15 +57,34 @@ export default {
     return {
       nombre: "Martin",
       dogs: [],
+      snackbar: false,
     };
   },
   methods: {
-    fetchDogs() {
-      var me = this;
+    saveFavorite(id) {
       axios
-        .get("images/search?limit=6&page=1&order=Rand")
-        .then(function (response) {
-          me.dogs = response.data;
+        .post("favourites", {
+          image_id: id,
+          sub_id: "Martin",
+        })
+        .then(() => {
+          this.$store.dispatch("showSnack", {
+            message: "Image marked as favorite",
+            color: "success",
+          });
+        })
+        .catch(() => {
+          this.$store.dispatch("showSnack", {
+            message: "You already have this image in your favorites",
+            color: "red darken-2",
+          });
+        });
+    },
+    fetchDogs() {
+      axios
+        .get("images/search?limit=6&page=1&order=Rand&breed_ids=55")
+        .then((response) => {
+          this.dogs = response.data;
         });
     },
   },
